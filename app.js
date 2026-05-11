@@ -22,14 +22,17 @@ function stopAudio() {
 
 document.addEventListener('DOMContentLoaded', () => {
   const scene = document.querySelector('a-scene');
+  if (!scene) return;
+
   scene.addEventListener('loaded', () => {
     const target = document.querySelector('#target-0');
+    if (!target) return;
+
     target.addEventListener('targetFound', () => {
-      console.log('Sayfa 0 bulundu');
       playAudio(0);
     });
+
     target.addEventListener('targetLost', () => {
-      console.log('Sayfa 0 kayboldu');
       stopAudio();
     });
   });
