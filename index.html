@@ -6,18 +6,17 @@
   <title>Temiz Deniz AR</title>
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+  <script src="app.js" defer></script>
+  
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      background: #0a1628;
-      font-family: 'Segoe UI', sans-serif;
-      height: 100vh;
-      overflow: hidden;
-    }
+    body { margin: 0; padding: 0; overflow: hidden; }
 
     #splash {
-      height: 100vh;
+      position: fixed;
+      inset: 0;
+      background: #0a1628;
+      z-index: 9999;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -27,19 +26,9 @@
       text-align: center;
     }
 
-    #splash h1 {
-      color: #ffffff;
-      font-size: 2rem;
-      font-weight: 700;
-    }
-
-    #splash p {
-      color: #7eb8d4;
-      font-size: 1rem;
-      line-height: 1.6;
-      max-width: 280px;
-    }
-
+    #splash h1 { color: #ffffff; font-size: 2rem; font-weight: 700; }
+    #splash p { color: #7eb8d4; font-size: 1rem; line-height: 1.6; max-width: 280px; }
+    
     #startBtn {
       background: linear-gradient(135deg, #1a8fbf, #0d5f8a);
       color: white;
@@ -50,36 +39,33 @@
       font-weight: 600;
       cursor: pointer;
       box-shadow: 0 4px 20px rgba(26,143,191,0.4);
+      transition: all 0.3s ease;
     }
 
-    #ar-wrapper {
+    #ar-ui {
       display: none;
       position: fixed;
       inset: 0;
-      background: #0a1628;
-      align-items: center;
-      justify-content: center;
+      z-index: 10;
+      pointer-events: none;
     }
 
-    #ar-wrapper.active {
-      display: flex;
-    }
+    #ar-ui.active { display: block; }
 
-    #ar-frame {
-      position: relative;
-      width: calc(100vw - 32px);
-      height: calc(100vh - 32px);
-      border-radius: 16px;
-      overflow: hidden;
+    .ar-border {
+      position: absolute;
+      inset: 16px;
       border: 3px solid #1a8fbf;
+      border-radius: 16px;
       box-shadow: 0 0 0 1px #0d5f8a, 0 8px 40px rgba(26,143,191,0.3);
+      pointer-events: none;
     }
 
     #closeBtn {
       position: absolute;
-      top: 12px;
-      right: 12px;
-      z-index: 9999;
+      top: 28px;
+      right: 28px;
+      z-index: 999;
       background: rgba(10,22,40,0.85);
       color: white;
       border: 1px solid #1a8fbf;
@@ -91,12 +77,27 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      pointer-events: auto;
     }
 
-    #ar-frame a-scene {
-      width: 100% !important;
-      height: 100% !important;
+    #page-indicator {
+      position: absolute;
+      bottom: 36px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(10, 22, 40, 0.85);
+      color: white;
+      padding: 10px 24px;
+      border-radius: 30px;
+      border: 1px solid #1a8fbf;
+      font-weight: 600;
+      font-size: 0.9rem;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
     }
+
+    #page-indicator.visible { opacity: 1; }
   </style>
 </head>
 <body>
@@ -107,76 +108,49 @@
     <button id="startBtn">Hikayeye Başla</button>
   </div>
 
-  <div id="ar-wrapper" id="ar-wrapper">
-    <div id="ar-frame">
-      <button id="closeBtn">✕</button>
-      <a-scene
-        id="arScene"
-        mindar-image="imageTargetSrc: ./targets/targets.mind; autoStart: false; uiLoading: yes; uiScanning: yes;"
-        color-space="sRGB"
-        renderer="colorManagement: true"
-        vr-mode-ui="enabled: false"
-        device-orientation-permission-ui="enabled: false"
-        embedded>
-
-        <a-assets>
-          <a-asset-item id="model-0" src="./models/sayfa0.glb"></a-asset-item>
-        </a-assets>
-
-        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-
-        <a-entity mindar-image-target="targetIndex: 0" id="target-0">
-          <a-gltf-model
-  src="#model-0"
-  position="0 0 0"
-  scale="0.3 0.3 0.3"
-  rotation="-90 0 0">
-</a-gltf-model>
-        </a-entity>
-
-      </a-scene>
-    </div>
+  <div id="ar-ui">
+    <div class="ar-border"></div>
+    <button id="closeBtn">✕</button>
+    <div id="page-indicator"></div>
   </div>
 
-  <script>
-  let arStarted = false;
+  <a-scene
+    id="arScene"
+    mindar-image="imageTargetSrc: ./targets/targets.mind; autoStart: false; uiLoading: yes; uiScanning: yes;"
+    color-space="sRGB"
+    renderer="colorManagement: true, physicallyCorrectLights: true"
+    vr-mode-ui="enabled: false"
+    device-orientation-permission-ui="enabled: false">
 
-  document.getElementById('startBtn').addEventListener('click', () => {
-    document.getElementById('splash').style.display = 'none';
-    document.getElementById('ar-wrapper').classList.add('active');
-    startMindAR();
-  });
+    <a-assets timeout="7000">
+      <a-asset-item id="model-0" src="./models/sayfa0.glb"></a-asset-item>
+      <a-asset-item id="model-5" src="./models/sayfa5.glb"></a-asset-item>
+      <a-asset-item id="model-14" src="./models/sayfa14.glb"></a-asset-item>
+      <a-asset-item id="model-15" src="./models/sayfa15.glb"></a-asset-item>
+    </a-assets>
 
-  document.getElementById('closeBtn').addEventListener('click', () => {
-    document.getElementById('ar-wrapper').classList.remove('active');
-    document.getElementById('splash').style.display = 'flex';
-    const scene = document.getElementById('arScene');
-    const mindarSystem = scene.systems['mindar-image-system'];
-    if (mindarSystem) mindarSystem.stop();
-    arStarted = false;
-  });
+    <a-entity light="type: ambient; color: #BBB; intensity: 1.5"></a-entity>
+    <a-entity light="type: directional; color: #FFF; intensity: 0.8" position="-0.5 1 1"></a-entity>
 
-  function startMindAR() {
-    if (arStarted) return;
-    arStarted = true;
-    const scene = document.getElementById('arScene');
+    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-    function tryStart() {
-      const mindarSystem = scene.systems['mindar-image-system'];
-      if (mindarSystem) {
-        mindarSystem.start();
-      } else {
-        setTimeout(tryStart, 300);
-      }
-    }
+    <a-entity mindar-image-target="targetIndex: 0" id="target-0">
+      <a-gltf-model src="#model-0" position="0 0 0" scale="2.5 2.5 2.5" rotation="-90 0 0"></a-gltf-model>
+    </a-entity>
 
-    if (scene.hasLoaded) {
-      tryStart();
-    } else {
-      scene.addEventListener('loaded', tryStart);
-    }
-  }
-</script>
+    <a-entity mindar-image-target="targetIndex: 1" id="target-1">
+      <a-gltf-model src="#model-5" position="0 0 0" scale="2.5 2.5 2.5" rotation="-90 0 0"></a-gltf-model>
+    </a-entity>
+
+    <a-entity mindar-image-target="targetIndex: 2" id="target-2">
+      <a-gltf-model src="#model-14" position="0 0 0" scale="2.5 2.5 2.5" rotation="-90 0 0"></a-gltf-model>
+    </a-entity>
+
+    <a-entity mindar-image-target="targetIndex: 3" id="target-3">
+      <a-gltf-model src="#model-15" position="0 0 0" scale="2.5 2.5 2.5" rotation="-90 0 0"></a-gltf-model>
+    </a-entity>
+
+  </a-scene>
 
 </body>
 </html>
