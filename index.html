@@ -13,7 +13,10 @@
   
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    body { background-color: #073644; overflow-x: hidden; }
+    
+    /* GÜNCELLEME: Kamera görüntüsünün görünebilmesi için body arka planı şeffaf (transparent) yapıldı */
+    html { background-color: #073644; }
+    body { background-color: transparent; overflow-x: hidden; }
 
     /* Ana Dashboard Düzeni */
     #dashboard {
@@ -154,7 +157,6 @@
     #ar-ui.active { display: block; }
     .ar-border { position: absolute; inset: 16px; border: 3px solid #1ca3bc; border-radius: 16px; pointer-events: none; }
     
-    /* GÜNCELLEME: Çarpı işareti sağ üst köşeye alındı */
     #closeBtn {
       position: absolute; top: 28px; right: 28px; z-index: 999;
       background: rgba(7, 73, 97, 0.9); color: white;
@@ -175,7 +177,7 @@
     .ar-buttons-sidebar {
       position: absolute;
       right: 24px;
-      top: 55%; /* Çarpı butonunun biraz altına denk gelmesi için %55 yapıldı */
+      top: 55%;
       transform: translateY(-50%);
       display: flex;
       flex-direction: column;
@@ -269,7 +271,7 @@
 
   <a-scene
     id="arScene"
-    mindar-image="imageTargetSrc: ./targets/targets.mind?v=8; autoStart: false; uiLoading: yes; uiScanning: yes; filterMinCF: 0.0001; filterBeta: 0.1; missTolerance: 12;"
+    mindar-image="imageTargetSrc: ./targets/targets.mind?v=8; autoStart: false; uiLoading: yes; uiScanning: yes; filterMinCF: 0.0005; filterBeta: 0.001; missTolerance: 25;"
     color-space="sRGB"
     renderer="colorManagement: true, physicallyCorrectLights: true"
     vr-mode-ui="enabled: false"
@@ -288,19 +290,19 @@
     <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
     <a-entity mindar-image-target="targetIndex: 0" id="target-0">
-      <a-gltf-model src="#model-0" position="0 1 0" scale="4 4 4" rotation="0 0 180" animation-mixer></a-gltf-model>
+      <a-gltf-model src="#model-0" position="0 0 0.05" scale="4 4 4" rotation="0 0 0" animation-mixer></a-gltf-model>
     </a-entity>
 
     <a-entity mindar-image-target="targetIndex: 1" id="target-1">
-      <a-gltf-model src="#model-5" position="0 1.2 0" scale="4 4 4" rotation="0 0 180" animation-mixer></a-gltf-model>
+      <a-gltf-model src="#model-5" position="0 0 0.05" scale="4 4 4" rotation="0 0 0" animation-mixer></a-gltf-model>
     </a-entity>
 
     <a-entity mindar-image-target="targetIndex: 2" id="target-2">
-      <a-gltf-model src="#model-14" position="0 1.2 0" scale="0.045 0.045 0.045" rotation="0 0 0" animation-mixer></a-gltf-model>
+      <a-gltf-model src="#model-14" position="0 0 0.05" scale="0.045 0.045 0.045" rotation="0 0 0" animation-mixer></a-gltf-model>
     </a-entity>
 
     <a-entity mindar-image-target="targetIndex: 3" id="target-3">
-      <a-gltf-model src="#model-15" position="0 1.2 0" scale="4 4 4" rotation="0 0 180" animation-mixer></a-gltf-model>
+      <a-gltf-model src="#model-15" position="0 0 0.05" scale="4 4 4" rotation="0 0 0" animation-mixer></a-gltf-model>
     </a-entity>
 
   </a-scene>
