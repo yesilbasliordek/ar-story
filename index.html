@@ -14,11 +14,14 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     
-    /* GÜNCELLEME: Kamera görüntüsünün görünebilmesi için body arka planı şeffaf (transparent) yapıldı */
-    html { background-color: #073644; }
-    body { background-color: transparent; overflow-x: hidden; }
+    /* KRİTİK DEĞİŞİKLİK: Kameranın arkada görünmesini engelleyen mavi arka plan tamamen kaldırıldı, şeffaf yapıldı */
+    html, body { 
+      background: transparent !important; 
+      background-color: transparent !important;
+      overflow-x: hidden; 
+    }
 
-    /* Ana Dashboard Düzeni */
+    /* Ana Dashboard Düzeni (Giriş ekranındaki mavi gradyan buraya taşındı) */
     #dashboard {
       position: fixed;
       inset: 0;
@@ -244,67 +247,4 @@
           <linearGradient id="coralOrange" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#ff7b23" /><stop offset="100%" stop-color="#c44d00" /></linearGradient>
           <linearGradient id="coralPurple" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#9b4bb4" /><stop offset="100%" stop-color="#561f6b" /></linearGradient>
         </defs>
-        <path class="coral-wave-slow" d="M0,130 C120,90 250,150 400,110 C560,70 680,160 850,120 C1020,80 1180,140 1320,100 C1380,80 1420,110 1440,115 L1440,200 L0,200 Z" fill="url(#coralPurple)" opacity="0.6"/>
-        <path class="coral-wave" d="M0,150 C180,110 320,180 500,140 C680,100 820,170 1000,130 C1180,90 1300,150 1440,120 L1440,200 L0,200 Z" fill="url(#coralPink)"/>
-        <path class="coral-wave-slow" d="M0,170 C100,150 200,130 350,160 C500,190 650,130 800,160 C950,190 1150,140 1300,160 C1380,170 1410,165 1440,160 L1440,200 L0,200 Z" fill="url(#coralOrange)"/>
-      </svg>
-    </div>
-  </div>
-
-  <div id="ar-ui">
-    <div class="ar-border"></div>
-    <button id="closeBtn">✕</button>
-    
-    <div class="ar-buttons-sidebar">
-      <button id="toggleModelBtn" class="ar-side-btn">
-        <span class="icon">👁️</span>
-        <span class="text">Kapat</span>
-      </button>
-      <button id="toggleAudioBtn" class="ar-side-btn">
-        <span class="icon">🔊</span>
-        <span class="text">Kıs</span>
-      </button>
-    </div>
-
-    <div id="page-indicator"></div>
-  </div>
-
-  <a-scene
-    id="arScene"
-    mindar-image="imageTargetSrc: ./targets/targets.mind?v=8; autoStart: false; uiLoading: yes; uiScanning: yes; filterMinCF: 0.0005; filterBeta: 0.001; missTolerance: 25;"
-    color-space="sRGB"
-    renderer="colorManagement: true, physicallyCorrectLights: true"
-    vr-mode-ui="enabled: false"
-    device-orientation-permission-ui="enabled: false">
-
-    <a-assets timeout="7000">
-      <a-asset-item id="model-0" src="./models/sayfa0.glb?v=8"></a-asset-item>
-      <a-asset-item id="model-5" src="./models/sayfa5.glb?v=8"></a-asset-item>
-      <a-asset-item id="model-14" src="./models/sayfa14.glb?v=8"></a-asset-item>
-      <a-asset-item id="model-15" src="./models/sayfa15.glb?v=8"></a-asset-item>
-    </a-assets>
-
-    <a-entity light="type: ambient; color: #BBB; intensity: 1.5"></a-entity>
-    <a-entity light="type: directional; color: #FFF; intensity: 0.8" position="-0.5 1 1"></a-entity>
-
-    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-
-    <a-entity mindar-image-target="targetIndex: 0" id="target-0">
-      <a-gltf-model src="#model-0" position="0 0 0.05" scale="4 4 4" rotation="0 0 0" animation-mixer></a-gltf-model>
-    </a-entity>
-
-    <a-entity mindar-image-target="targetIndex: 1" id="target-1">
-      <a-gltf-model src="#model-5" position="0 0 0.05" scale="4 4 4" rotation="0 0 0" animation-mixer></a-gltf-model>
-    </a-entity>
-
-    <a-entity mindar-image-target="targetIndex: 2" id="target-2">
-      <a-gltf-model src="#model-14" position="0 0 0.05" scale="0.045 0.045 0.045" rotation="0 0 0" animation-mixer></a-gltf-model>
-    </a-entity>
-
-    <a-entity mindar-image-target="targetIndex: 3" id="target-3">
-      <a-gltf-model src="#model-15" position="0 0 0.05" scale="4 4 4" rotation="0 0 0" animation-mixer></a-gltf-model>
-    </a-entity>
-
-  </a-scene>
-</body>
-</html>
+        <path class="coral-wave-slow" d="M0,130 C120,90 250,150 400,110 C560,70 680,160 850,120 C1
