@@ -3,151 +3,299 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Temiz Deniz AR</title>
+  <title>Temiz Deniz AR Kütüphanesi</title>
+  
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-  <script src="app.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
+  
+  <script src="app.js?v=12" defer></script>
   
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { margin: 0; padding: 0; overflow: hidden; }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: #073644; overflow-x: hidden; }
 
-    #splash {
+    /* Ana Dashboard Düzeni */
+    #dashboard {
       position: fixed;
       inset: 0;
-      background: #0a1628;
       z-index: 9999;
+      background: linear-gradient(135deg, #1ca3bc 0%, #074961 50%, #052c3a 100%);
+      overflow-y: auto;
+      padding: 30px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Üst Bar ve Arama Çubuğu */
+    .header-bar {
+      width: 100%;
+      max-width: 1000px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 40px;
+      z-index: 10;
+    }
+
+    .header-bar h1 {
+      color: white;
+      font-size: 2.2rem;
+      text-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+
+    .search-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 500px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 16px 24px;
+      border-radius: 30px;
+      border: 2px solid rgba(255,255,255,0.2);
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      color: white;
+      font-size: 1rem;
+      outline: none;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    }
+
+    .search-input::placeholder { color: rgba(255,255,255,0.7); }
+    .search-input:focus {
+      border-color: #ff7b23;
+      background: rgba(255, 255, 255, 0.25);
+      box-shadow: 0 8px 32px rgba(255, 123, 35, 0.2);
+    }
+
+    /* Kitapları Ortaya Hizalayan Izgara */
+    .books-grid {
+      width: 100%;
+      max-width: 1000px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 35px;
+      padding: 10px;
+      padding-bottom: 200px;
+      z-index: 10;
+    }
+
+    /* Kitap Kartları */
+    .book-card {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 24px;
+      padding: 18px;
+      width: 240px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+      backdrop-filter: blur(5px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+
+    .book-card:hover {
+      transform: translateY(-10px) scale(1.02);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+      border-color: #ff7b23;
+    }
+
+    .book-cover-wrapper {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #052c3a;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+      margin-bottom: 18px;
+    }
+
+    .book-cover { width: 100%; height: 100%; object-fit: cover; }
+    .book-title { color: white; font-size: 1.2rem; font-weight: 700; text-align: center; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+
+    /* Yeni Kitap Ekleme Kutusu */
+    .book-card.placeholder { border: 2px dashed rgba(255,255,255,0.25); background: rgba(0, 0, 0, 0.15); cursor: default; }
+    .book-card.placeholder:hover { transform: none; box-shadow: none; border-color: rgba(255,255,255,0.25); }
+    .add-icon { font-size: 3.5rem; color: rgba(255,255,255,0.3); margin-top: 20px; margin-bottom: 20px; }
+
+    /* SÜZÜLEN BALONCUKLAR */
+    .bubbles-container { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 1; }
+    .bubble {
+      position: absolute; bottom: -60px; background: rgba(255, 255, 255, 0.08);
+      border: 1.5px solid rgba(255, 255, 255, 0.2); border-radius: 50%;
+      box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.3); animation: floatUp 9s infinite linear;
+    }
+    @keyframes floatUp {
+      0% { transform: translateY(0) translateX(0) scale(1); opacity: 0; }
+      10% { opacity: 0.6; }
+      90% { opacity: 0.6; }
+      100% { transform: translateY(-110vh) translateX(50px) scale(1.3); opacity: 0; }
+    }
+
+    /* VECTOR SU ALTI DÜNYASI */
+    .vector-ocean-floor { position: fixed; bottom: 0; left: 0; width: 100%; height: 180px; pointer-events: none; z-index: 2; }
+    .coral-wave { animation: waveMove 6s infinite ease-in-out; transform-origin: bottom center; }
+    .coral-wave-slow { animation: waveMove 8s infinite ease-in-out; animation-delay: -2s; transform-origin: bottom center; }
+    @keyframes waveMove { 0%, 100% { transform: scaleY(1) rotate(0deg); } 50% { transform: scaleY(1.05) rotate(1deg); } }
+
+    /* AR KAMERA KATMANI ARAYÜZÜ */
+    #ar-ui { display: none; position: fixed; inset: 0; z-index: 10; pointer-events: none; }
+    #ar-ui.active { display: block; }
+    .ar-border { position: absolute; inset: 16px; border: 3px solid #1ca3bc; border-radius: 16px; pointer-events: none; }
+    
+    #closeBtn {
+      position: absolute; top: 28px; left: 28px; z-index: 999; /* Butonu sola aldık, sağ taraf seçeneklere ayrıldı */
+      background: rgba(7, 73, 97, 0.9); color: white;
+      border: 1px solid #1ca3bc; border-radius: 50%;
+      width: 44px; height: 44px; font-size: 1.2rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; pointer-events: auto;
+    }
+
+    #page-indicator {
+      position: absolute; bottom: 36px; left: 50%; transform: translateX(-50%);
+      background: rgba(7, 73, 97, 0.9); color: white; padding: 10px 24px;
+      border-radius: 30px; border: 1px solid #1ca3bc; font-weight: 600;
+      opacity: 0; transition: opacity 0.3s ease; pointer-events: none;
+    }
+    #page-indicator.visible { opacity: 1; }
+
+    /* YENİ: SAĞ TARAFA SABİTLENEN SEÇENEKLER PANELİ */
+    .ar-buttons-sidebar {
+      position: absolute;
+      right: 24px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      pointer-events: auto; /* Tıklanabilir olması için şart */
+      z-index: 999;
+    }
+
+    .ar-side-btn {
+      background: rgba(7, 73, 97, 0.85);
+      border: 2px solid #1ca3bc;
+      color: white;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      cursor: pointer;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 32px;
-      padding: 40px 24px;
-      text-align: center;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+      transition: all 0.2s ease;
     }
 
-    #splash h1 { color: #ffffff; font-size: 2rem; font-weight: 700; }
-    #splash p { color: #7eb8d4; font-size: 1rem; line-height: 1.6; max-width: 280px; }
-    
-    #startBtn {
-      background: linear-gradient(135deg, #1a8fbf, #0d5f8a);
-      color: white;
-      border: none;
-      padding: 16px 48px;
-      border-radius: 50px;
-      font-size: 1.1rem;
-      font-weight: 600;
-      cursor: pointer;
-      box-shadow: 0 4px 20px rgba(26,143,191,0.4);
-      transition: all 0.3s ease;
-    }
-
-    #ar-ui {
-      display: none;
-      position: fixed;
-      inset: 0;
-      z-index: 10;
-      pointer-events: none;
-    }
-
-    #ar-ui.active { display: block; }
-
-    .ar-border {
-      position: absolute;
-      inset: 16px;
-      border: 3px solid #1a8fbf;
-      border-radius: 16px;
-      box-shadow: 0 0 0 1px #0d5f8a, 0 8px 40px rgba(26,143,191,0.3);
-      pointer-events: none;
-    }
-
-    #closeBtn {
-      position: absolute;
-      top: 28px;
-      right: 28px;
-      z-index: 999;
-      background: rgba(10,22,40,0.85);
-      color: white;
-      border: 1px solid #1a8fbf;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      font-size: 1.2rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      pointer-events: auto;
-    }
-
-    #page-indicator {
-      position: absolute;
-      bottom: 36px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(10, 22, 40, 0.85);
-      color: white;
-      padding: 10px 24px;
-      border-radius: 30px;
-      border: 1px solid #1a8fbf;
-      font-weight: 600;
-      font-size: 0.9rem;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-
-    #page-indicator.visible { opacity: 1; }
+    .ar-side-btn:active { transform: scale(0.9); }
+    .ar-side-btn .icon { font-size: 1.4rem; }
+    .ar-side-btn .text { font-size: 0.65rem; font-weight: 700; margin-top: 2px; text-transform: uppercase; }
   </style>
 </head>
 <body>
 
-  <div id="splash">
-    <h1>Temiz Deniz</h1>
-    <p>Kitabının sayfalarını kameraya göster, karakterler canlanacak!</p>
-    <button id="startBtn">Hikayeye Başla</button>
+  <div id="dashboard">
+    <div class="bubbles-container">
+      <div class="bubble" style="left: 8%; width: 35px; height: 35px; animation-duration: 7s; animation-delay: 0s;"></div>
+      <div class="bubble" style="left: 22%; width: 20px; height: 20px; animation-duration: 9s; animation-delay: 2s;"></div>
+      <div class="bubble" style="left: 40%; width: 45px; height: 45px; animation-duration: 11s; animation-delay: 1s;"></div>
+      <div class="bubble" style="left: 60%; width: 25px; height: 25px; animation-duration: 8s; animation-delay: 4s;"></div>
+      <div class="bubble" style="left: 78%; width: 40px; height: 40px; animation-duration: 10s; animation-delay: 3s;"></div>
+      <div class="bubble" style="left: 90%; width: 18px; height: 18px; animation-duration: 6s; animation-delay: 5s;"></div>
+    </div>
+
+    <div class="header-bar">
+      <h1>AR Kütüphanesi</h1>
+      <div class="search-wrapper">
+        <input type="text" id="searchInput" class="search-input" placeholder="Hikaye kitabı ara...">
+      </div>
+    </div>
+
+    <div class="books-grid" id="booksGrid">
+      <div class="book-card" id="temizDenizCard" data-title="temiz deniz">
+        <div class="book-cover-wrapper">
+          <img src="cover.png" class="book-cover" alt="Temiz Deniz Kapağı">
+        </div>
+        <div class="book-title">Temiz Deniz</div>
+      </div>
+      <div class="book-card placeholder" data-title="yakında"><div class="add-icon">+</div><div class="book-title" style="color: rgba(255,255,255,0.3)">Yakında...</div></div>
+      <div class="book-card placeholder" data-title="yakında"><div class="add-icon">+</div><div class="book-title" style="color: rgba(255,255,255,0.3)">Yakında...</div></div>
+    </div>
+
+    <div class="vector-ocean-floor">
+      <svg viewBox="0 0 1440 200" preserveAspectRatio="none" style="width:100%; height:100%;" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="coralPink" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#e6437d" /><stop offset="100%" stop-color="#9e1b4b" /></linearGradient>
+          <linearGradient id="coralOrange" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#ff7b23" /><stop offset="100%" stop-color="#c44d00" /></linearGradient>
+          <linearGradient id="coralPurple" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#9b4bb4" /><stop offset="100%" stop-color="#561f6b" /></linearGradient>
+        </defs>
+        <path class="coral-wave-slow" d="M0,130 C120,90 250,150 400,110 C560,70 680,160 850,120 C1020,80 1180,140 1320,100 C1380,80 1420,110 1440,115 L1440,200 L0,200 Z" fill="url(#coralPurple)" opacity="0.6"/>
+        <path class="coral-wave" d="M0,150 C180,110 320,180 500,140 C680,100 820,170 1000,130 C1180,90 1300,150 1440,120 L1440,200 L0,200 Z" fill="url(#coralPink)"/>
+        <path class="coral-wave-slow" d="M0,170 C100,150 200,130 350,160 C500,190 650,130 800,160 C950,190 1150,140 1300,160 C1380,170 1410,165 1440,160 L1440,200 L0,200 Z" fill="url(#coralOrange)"/>
+      </svg>
+    </div>
   </div>
 
   <div id="ar-ui">
     <div class="ar-border"></div>
     <button id="closeBtn">✕</button>
+    
+    <div class="ar-buttons-sidebar">
+      <button id="toggleModelBtn" class="ar-side-btn">
+        <span class="icon">👁️</span>
+        <span class="text">Kapat</span>
+      </button>
+      <button id="toggleAudioBtn" class="ar-side-btn">
+        <span class="icon">🔊</span>
+        <span class="text">Kıs</span>
+      </button>
+    </div>
+
     <div id="page-indicator"></div>
   </div>
 
   <a-scene
     id="arScene"
-    mindar-image="imageTargetSrc: ./targets/targets.mind; autoStart: false; uiLoading: yes; uiScanning: yes;"
+    mindar-image="imageTargetSrc: ./targets/targets.mind?v=12; autoStart: false; uiLoading: yes; uiScanning: yes; filterMinCF: 0.0001; filterBeta: 0.1; missTolerance: 12;"
     color-space="sRGB"
     renderer="colorManagement: true, physicallyCorrectLights: true"
     vr-mode-ui="enabled: false"
     device-orientation-permission-ui="enabled: false">
 
     <a-assets timeout="7000">
-      <a-asset-item id="model-0" src="./models/sayfa0.glb"></a-asset-item>
-      <a-asset-item id="model-5" src="./models/sayfa5.glb"></a-asset-item>
-      <a-asset-item id="model-14" src="./models/sayfa14.glb"></a-asset-item>
-      <a-asset-item id="model-15" src="./models/sayfa15.glb"></a-asset-item>
+      <a-asset-item id="model-0" src="./models/sayfa0.glb?v=12"></a-asset-item>
+      <a-asset-item id="model-5" src="./models/sayfa5.glb?v=12"></a-asset-item>
+      <a-asset-item id="model-14" src="./models/sayfa14.glb?v=12"></a-asset-item>
+      <a-asset-item id="model-15" src="./models/sayfa15.glb?v=12"></a-asset-item>
     </a-assets>
 
     <a-entity light="type: ambient; color: #BBB; intensity: 1.5"></a-entity>
     <a-entity light="type: directional; color: #FFF; intensity: 0.8" position="-0.5 1 1"></a-entity>
-
     <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
     <a-entity mindar-image-target="targetIndex: 0" id="target-0">
-      <a-gltf-model src="#model-0" position="0 0 0" scale="2.5 2.5 2.5" rotation="-90 0 0"></a-gltf-model>
+      <a-gltf-model src="#model-0" position="0 1 -0.2" scale="4 4 4" rotation="0 0 180" animation-mixer></a-gltf-model>
     </a-entity>
-
     <a-entity mindar-image-target="targetIndex: 1" id="target-1">
-      <a-gltf-model src="#model-5" position="0 0 0" scale="2.5 2.5 2.5" rotation="-90 0 0"></a-gltf-model>
+      <a-gltf-model src="#model-5" position="0 1.2 -0.2" scale="4 4 4" rotation="0 0 180" animation-mixer></a-gltf-model>
     </a-entity>
-
     <a-entity mindar-image-target="targetIndex: 2" id="target-2">
-      <a-gltf-model src="#model-14" position="0 0 0" scale="2.5 2.5 2.5" rotation="-90 0 0"></a-gltf-model>
+      <a-gltf-model src="#model-14" position="0 1.2 -0.2" scale="0.045 0.045 0.045" rotation="0 0 0" animation-mixer></a-gltf-model>
     </a-entity>
-
     <a-entity mindar-image-target="targetIndex: 3" id="target-3">
-      <a-gltf-model src="#model-15" position="0 0 0" scale="2.5 2.5 2.5" rotation="-90 0 0"></a-gltf-model>
+      <a-gltf-model src="#model-15" position="0 1.2 -0.2" scale="4 4 4" rotation="0 0 180" animation-mixer></a-gltf-model>
     </a-entity>
 
   </a-scene>
