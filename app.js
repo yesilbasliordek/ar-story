@@ -1,5 +1,5 @@
 /**
- * Temiz Deniz AR — app.js
+ * Temiz Deniz AR — app.js (Tam Güncel Sürüm)
  */
 
 const PAGES = {
@@ -17,8 +17,8 @@ let arStarted = false;
 let isMuted = false;
 let modelsVisible = true;
 
-// PINCH TO ZOOM (YAKINLAŞTIRMA) İÇİN BASE VE GÜNCEL ÖLÇEKLER
-const baseScales = { 'target-0': 4, 'target-1': 4, 'target-2': 0.045, 'target-3': 4 };
+// PINCH TO ZOOM TABAN ÖLÇEKLERİ
+const baseScales = { 'target-0': 4, 'target-1': 4, 'target-2': 0.04, 'target-3': 4 };
 let scaleModifiers = { 'target-0': 1, 'target-1': 1, 'target-2': 1, 'target-3': 1 };
 let startDistance = 0;
 
@@ -26,7 +26,7 @@ function playAudio(src) {
   stopAudio();
   if (!src) return;
   currentAudio = new Audio(src);
-  currentAudio.muted = isMuted; // Global ses durumunu senkronize et
+  currentAudio.muted = isMuted; 
   currentAudio.play().catch(err => console.warn('Ses oynatılamadı:', err));
 }
 
@@ -97,12 +97,13 @@ function startMindAR() {
   }
 }
 
-// UI VE HAREKET OLAYLARI (TOUCH & BUTTONS)
+// UI VE HAREKET OLAYLARI
 document.addEventListener('DOMContentLoaded', () => {
   const temizDenizCard = document.getElementById('temizDenizCard');
   const searchInput = document.getElementById('searchInput');
   const bookCards = document.querySelectorAll('.book-card');
   
+  const finishBtn = document.getElementById('finishBtn'); 
   const toggleModelBtn = document.getElementById('toggleModelBtn');
   const toggleAudioBtn = document.getElementById('toggleAudioBtn');
 
@@ -130,19 +131,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 3. SAĞ PANEL: Model Aç / Kapat Fonksiyonu
   if (toggleModelBtn) {
-    toggleModelBtn.addEventListener('click', () => {
+    toggleModelBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
       modelsVisible = !modelsVisible;
       document.querySelectorAll('a-gltf-model').forEach(model => {
         model.setAttribute('visible', modelsVisible);
       });
       toggleModelBtn.querySelector('.icon').textContent = modelsVisible ? '👁️' : '🙈';
-      toggleModelBtn.querySelector('.text').textContent = modelsVisible ? 'Kapat' : 'Aç';
+      toggleModelBtn.querySelector('.text').textContent = modelsVisible ? 'Gizle' : 'Göster';
     });
   }
 
   // 4. SAĞ PANEL: Ses Aç / Kapat Fonksiyonu
   if (toggleAudioBtn) {
-    toggleAudioBtn.addEventListener('click', () => {
+    toggleAudioBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
       isMuted = !isMuted;
       if (currentAudio) {
         currentAudio.muted = isMuted;
@@ -152,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 5. İKİ PARMAK İLE YAKINLAŞTIRMA / UZAKLAŞTIRMA (PINCH TO ZOOM)
+  // 5. PINCH TO ZOOM
   window.addEventListener('touchstart', (e) => {
     if (e.touches.length === 2) {
       startDistance = Math.hypot(
@@ -171,11 +176,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const factor = currentDistance / startDistance;
       startDistance = currentDistance;
 
-      // Tüm modelleri mevcut parmak çarpanına göre güvenli sınırlar içinde boyutlandır
       Object.keys(scaleModifiers).forEach(id => {
         let newModifier = scaleModifiers[id] * factor;
-        
-        // Modelin ekrandan kaybolmaması veya aşırı devasa olmaması için limit (0.4x - 2.5x arası)
         if (newModifier >= 0.4 && newModifier <= 2.5) {
           scaleModifiers[id] = newModifier;
           const model = document.querySelector(`#${id} a-gltf-model`);
@@ -193,23 +195,30 @@ document.addEventListener('DOMContentLoaded', () => {
     startDistance = 0;
   });
 
-  // 6. AR Ekranından Çıkış (Kapatma Butonu)
-  document.getElementById('closeBtn').addEventListener('click', () => {
-    stopAudio();
-    hideIndicator();
-    document.getElementById('ar-ui').classList.remove('active');
-    
-    if (temizDenizCard) {
-      const titleEl = temizDenizCard.querySelector('.book-title');
-      if (titleEl) titleEl.textContent = "Temiz Deniz";
-      temizDenizCard.style.opacity = "1";
-      temizDenizCard.style.pointerEvents = "auto";
-    }
-    
-    document.getElementById('dashboard').style.display = 'flex';
-    const scene = document.getElementById('arScene');
-    const mindarSystem = scene.systems['mindar-image-system'];
-    if (mindarSystem) mindarSystem.stop();
-    arStarted = false;
-  });
+  // 6. GÜNCELLEME: Kesin ve Engelsiz Çıkış (Kapat butonu işlevi)
+  if (finishBtn) {
+    finishBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation(); // Tıklamanın A-Frame katmanına takılmasını tamamen engeller
+      
+      stopAudio();
+      hideIndicator();
+      document.getElementById('ar-ui').classList.remove('active');
+      
+      if (temizDenizCard) {
+        const titleEl = temizDenizCard.querySelector('.book-title');
+        if (titleEl) titleEl.textContent = "Temiz Deniz";
+        temizDenizCard.style.opacity = "1";
+        temizDenizCard.style.pointerEvents = "auto";
+      }
+      
+      document.getElementById('dashboard').style.display = 'flex';
+      
+      const scene = document.getElementById('arScene');
+      if (scene && scene.systems['mindar-image-system']) {
+        scene.systems['mindar-image-system'].stop();
+      }
+      arStarted = false;
+    });
+  }
 });

@@ -14,14 +14,13 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     
-    /* KRİTİK DEĞİŞİKLİK: Kameranın arkada görünmesini engelleyen mavi arka plan tamamen kaldırıldı, şeffaf yapıldı */
     html, body { 
       background: transparent !important; 
       background-color: transparent !important;
       overflow-x: hidden; 
     }
 
-    /* Ana Dashboard Düzeni (Giriş ekranındaki mavi gradyan buraya taşındı) */
+    /* Ana Dashboard Düzeni */
     #dashboard {
       position: fixed;
       inset: 0;
@@ -81,7 +80,7 @@
       box-shadow: 0 8px 32px rgba(255, 123, 35, 0.2);
     }
 
-    /* Kitapları Ortaya Hizalayan Izgara */
+    /* Kitap Izgarası */
     .books-grid {
       width: 100%;
       max-width: 1000px;
@@ -95,7 +94,6 @@
       z-index: 10;
     }
 
-    /* Kitap Kartları */
     .book-card {
       background: rgba(255, 255, 255, 0.08);
       border: 1px solid rgba(255, 255, 255, 0.15);
@@ -130,7 +128,6 @@
     .book-cover { width: 100%; height: 100%; object-fit: cover; }
     .book-title { color: white; font-size: 1.2rem; font-weight: 700; text-align: center; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
 
-    /* Yeni Kitap Ekleme Kutusu */
     .book-card.placeholder { border: 2px dashed rgba(255,255,255,0.25); background: rgba(0, 0, 0, 0.15); cursor: default; }
     .book-card.placeholder:hover { transform: none; box-shadow: none; border-color: rgba(255,255,255,0.25); }
     .add-icon { font-size: 3.5rem; color: rgba(255,255,255,0.3); margin-top: 20px; margin-bottom: 20px; }
@@ -150,51 +147,43 @@
     }
 
     /* VECTOR SU ALTI DÜNYASI */
-    .vector-ocean-floor { position: fixed; bottom: 0; left: 0; width: 100%; height: 180px; pointer-events: none; z-index: 2; }
+    .vector-ocean-floor { position: fixed; bottom: -35px; left: -5%; width: 110%; height: 220px; pointer-events: none; z-index: 2; }
     .coral-wave { animation: waveMove 6s infinite ease-in-out; transform-origin: bottom center; }
     .coral-wave-slow { animation: waveMove 8s infinite ease-in-out; animation-delay: -2s; transform-origin: bottom center; }
-    @keyframes waveMove { 0%, 100% { transform: scaleY(1) rotate(0deg); } 50% { transform: scaleY(1.05) rotate(1deg); } }
+    @keyframes waveMove { 0%, 100% { transform: scaleY(1) scaleX(1) rotate(0deg); } 50% { transform: scaleY(1.1) scaleX(1.03) rotate(1.5deg); } }
 
     /* AR KAMERA KATMANI ARAYÜZÜ */
-    #ar-ui { display: none; position: fixed; inset: 0; z-index: 10; pointer-events: none; }
+    /* KRİTİK GÜNCELLEME: z-index 99999 yapılarak tüm kütüphanelerin üstüne çıkarıldı, tıklama engeli çözüldü */
+    #ar-ui { display: none; position: fixed; inset: 0; z-index: 99999 !important; pointer-events: none; }
     #ar-ui.active { display: block; }
     .ar-border { position: absolute; inset: 16px; border: 3px solid #1ca3bc; border-radius: 16px; pointer-events: none; }
     
-    #closeBtn {
-      position: absolute; top: 28px; right: 28px; z-index: 999;
-      background: rgba(7, 73, 97, 0.9); color: white;
-      border: 1px solid #1ca3bc; border-radius: 50%;
-      width: 44px; height: 44px; font-size: 1.2rem; cursor: pointer;
-      display: flex; align-items: center; justify-content: center; pointer-events: auto;
-    }
-
     #page-indicator {
       position: absolute; bottom: 36px; left: 50%; transform: translateX(-50%);
       background: rgba(7, 73, 97, 0.9); color: white; padding: 10px 24px;
-      border-radius: 30px; border: 1px solid #1ca3bc; font-weight: 600;
+      border-radius: 30px; border: 2px solid #1ca3bc; font-weight: 600;
       opacity: 0; transition: opacity 0.3s ease; pointer-events: none;
     }
     #page-indicator.visible { opacity: 1; }
 
-    /* SAĞ TARAFA SABİTLENEN SEÇENEKLER PANELİ */
+    /* GÜNCELLEME: Tüm buton paneli SAĞ ÜST KÖŞEYE dikey ve çok estetik şekilde hizalandı */
     .ar-buttons-sidebar {
       position: absolute;
       right: 24px;
-      top: 55%;
-      transform: translateY(-50%);
+      top: 24px;   /* Sağ üst köşe hizalaması */
       display: flex;
       flex-direction: column;
-      gap: 20px;
-      pointer-events: auto;
-      z-index: 999;
+      gap: 14px;
+      pointer-events: auto !important; /* Tıklamayı garanti altına alır */
     }
 
+    /* TEMAYA UYGUN premium YUVARLAK BUTONLAR */
     .ar-side-btn {
-      background: rgba(7, 73, 97, 0.85);
-      border: 2px solid #1ca3bc;
-      color: white;
-      width: 60px;
-      height: 60px;
+      background: rgba(7, 73, 97, 0.85); 
+      border: 2px solid #1ca3bc; 
+      color: white; 
+      width: 58px;
+      height: 58px;
       border-radius: 50%;
       cursor: pointer;
       display: flex;
@@ -203,11 +192,18 @@
       justify-content: center;
       box-shadow: 0 6px 20px rgba(0,0,0,0.4);
       transition: all 0.2s ease;
+      pointer-events: auto !important;
     }
 
+    /* Kapatma butonu için özel, dikkat çekici ama temayı bozmayan hafif mercan vurgusu */
+    #finishBtn {
+      border-color: #ff7b23;
+    }
+    #finishBtn .icon { color: #ff7b23; }
+
     .ar-side-btn:active { transform: scale(0.9); }
-    .ar-side-btn .icon { font-size: 1.4rem; }
-    .ar-side-btn .text { font-size: 0.65rem; font-weight: 700; margin-top: 2px; text-transform: uppercase; }
+    .ar-side-btn .icon { font-size: 1.3rem; }
+    .ar-side-btn .text { font-size: 0.6rem; font-weight: 700; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
   </style>
 </head>
 <body>
@@ -247,4 +243,70 @@
           <linearGradient id="coralOrange" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#ff7b23" /><stop offset="100%" stop-color="#c44d00" /></linearGradient>
           <linearGradient id="coralPurple" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#9b4bb4" /><stop offset="100%" stop-color="#561f6b" /></linearGradient>
         </defs>
-        <path class="coral-wave-slow" d="M0,130 C120,90 250,150 400,110 C560,70 680,160 850,120 C1
+        <path class="coral-wave-slow" d="M0,130 C120,90 250,150 400,110 C560,70 680,160 850,120 C1020,80 1180,140 1320,100 C1380,80 1420,110 1440,115 L1440,200 L0,200 Z" fill="url(#coralPurple)" opacity="0.6"/>
+        <path class="coral-wave" d="M0,150 C180,110 320,180 500,140 C680,100 820,170 1000,130 C1180,90 1300,150 1440,120 L1440,200 L0,200 Z" fill="url(#coralPink)"/>
+        <path class="coral-wave-slow" d="M0,170 C100,150 200,130 350,160 C500,190 650,130 800,160 C950,190 1150,140 1300,160 C1380,170 1410,165 1440,160 L1440,200 L0,200 Z" fill="url(#coralOrange)"/>
+      </svg>
+    </div>
+  </div>
+
+  <div id="ar-ui">
+    <div class="ar-border"></div>
+    
+    <div class="ar-buttons-sidebar">
+      <button id="finishBtn" class="ar-side-btn">
+        <span class="icon">✕</span>
+        <span class="text"></span>
+      </button>
+      <button id="toggleModelBtn" class="ar-side-btn">
+        <span class="icon">👁️</span>
+        <span class="text"></span>
+      </button>
+      <button id="toggleAudioBtn" class="ar-side-btn">
+        <span class="icon">🔊</span>
+        <span class="text"></span>
+      </button>
+    </div>
+
+    <div id="page-indicator"></div>
+  </div>
+
+  <a-scene
+    id="arScene"
+    mindar-image="imageTargetSrc: ./targets/targets.mind?v=8; autoStart: false; uiLoading: yes; uiScanning: yes; filterMinCF: 0.0005; filterBeta: 0.001; missTolerance: 5;"
+    color-space="sRGB"
+    renderer="colorManagement: true, physicallyCorrectLights: true"
+    vr-mode-ui="enabled: false"
+    device-orientation-permission-ui="enabled: false">
+
+    <a-assets timeout="7000">
+      <a-asset-item id="model-0" src="./models/sayfa0.glb?v=8"></a-asset-item>
+      <a-asset-item id="model-5" src="./models/sayfa5.glb?v=8"></a-asset-item>
+      <a-asset-item id="model-14" src="./models/sayfa14.glb?v=8"></a-asset-item>
+      <a-asset-item id="model-15" src="./models/sayfa15.glb?v=8"></a-asset-item>
+    </a-assets>
+
+    <a-entity light="type: ambient; color: #BBB; intensity: 1.5"></a-entity>
+    <a-entity light="type: directional; color: #FFF; intensity: 0.8" position="-0.5 1 1"></a-entity>
+
+    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+    <a-entity mindar-image-target="targetIndex: 0" id="target-0">
+      <a-gltf-model src="#model-0" position="0 -1.3 0" scale="4 4 4" rotation="0 0 180" animation-mixer></a-gltf-model>
+    </a-entity>
+
+    <a-entity mindar-image-target="targetIndex: 1" id="target-1">
+      <a-gltf-model src="#model-5" position="0 0 0" scale="4 4 4" rotation="0 0 180" animation-mixer></a-gltf-model>
+    </a-entity>
+
+    <a-entity mindar-image-target="targetIndex: 2" id="target-2">
+      <a-gltf-model src="#model-14" position="0 0 0" scale="0.04 0.04 0.04" rotation="0 0 0" animation-mixer></a-gltf-model>
+    </a-entity>
+
+    <a-entity mindar-image-target="targetIndex: 3" id="target-3">
+      <a-gltf-model src="#model-15" position="0 0 0" scale="4 4 4" rotation="0 0 180" animation-mixer></a-gltf-model>
+    </a-entity>
+
+  </a-scene>
+</body>
+</html>
