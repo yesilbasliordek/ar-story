@@ -9,11 +9,12 @@
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
   
-  <script src="app.js?v=15" defer></script>
+  <script src="app.js?v=16" defer></script>
   
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     
+    /* KAMERA ARKA PLAN DÜZELTMESİ: Kamera görüntüsünün görünmesi için transparent yapıldı */
     html, body { 
       background: transparent !important; 
       background-color: transparent !important;
@@ -146,15 +147,15 @@
       100% { transform: translateY(-110vh) translateX(50px) scale(1.3); opacity: 0; }
     }
 
-    /* VECTOR SU ALTI DÜNYASI */
+    /* VECTOR SU ALTI DÜNYASI (ALTTAN YIRTILMA ENGELLENDİ) */
     .vector-ocean-floor { position: fixed; bottom: -35px; left: -5%; width: 110%; height: 220px; pointer-events: none; z-index: 2; }
     .coral-wave { animation: waveMove 6s infinite ease-in-out; transform-origin: bottom center; }
     .coral-wave-slow { animation: waveMove 8s infinite ease-in-out; animation-delay: -2s; transform-origin: bottom center; }
     @keyframes waveMove { 0%, 100% { transform: scaleY(1) scaleX(1) rotate(0deg); } 50% { transform: scaleY(1.1) scaleX(1.03) rotate(1.5deg); } }
 
     /* AR KAMERA KATMANI ARAYÜZÜ */
-    /* KRİTİK GÜNCELLEME: z-index 99999 yapılarak tüm kütüphanelerin üstüne çıkarıldı, tıklama engeli çözüldü */
-    #ar-ui { display: none; position: fixed; inset: 0; z-index: 99999 !important; pointer-events: none; }
+    /* Tıklama engeli olmaması için z-index en üste alındı */
+    #ar-ui { display: none; position: fixed; inset: 0; z-index: 999999 !important; pointer-events: none; }
     #ar-ui.active { display: block; }
     .ar-border { position: absolute; inset: 16px; border: 3px solid #1ca3bc; border-radius: 16px; pointer-events: none; }
     
@@ -166,18 +167,18 @@
     }
     #page-indicator.visible { opacity: 1; }
 
-    /* GÜNCELLEME: Tüm buton paneli SAĞ ÜST KÖŞEYE dikey ve çok estetik şekilde hizalandı */
+    /* SAĞ ÜST KÖŞE BUTON PANELİ DÜZENİ */
     .ar-buttons-sidebar {
       position: absolute;
       right: 24px;
-      top: 24px;   /* Sağ üst köşe hizalaması */
+      top: 24px;   
       display: flex;
       flex-direction: column;
       gap: 14px;
-      pointer-events: auto !important; /* Tıklamayı garanti altına alır */
+      pointer-events: auto !important; 
     }
 
-    /* TEMAYA UYGUN premium YUVARLAK BUTONLAR */
+    /* TEMAYA UYGUN PREMİUM YUVARLAK BUTONLAR */
     .ar-side-btn {
       background: rgba(7, 73, 97, 0.85); 
       border: 2px solid #1ca3bc; 
@@ -195,10 +196,8 @@
       pointer-events: auto !important;
     }
 
-    /* Kapatma butonu için özel, dikkat çekici ama temayı bozmayan hafif mercan vurgusu */
-    #finishBtn {
-      border-color: #ff7b23;
-    }
+    /* Kapatma butonu vurgusu */
+    #finishBtn { border-color: #ff7b23; }
     #finishBtn .icon { color: #ff7b23; }
 
     .ar-side-btn:active { transform: scale(0.9); }
@@ -256,15 +255,15 @@
     <div class="ar-buttons-sidebar">
       <button id="finishBtn" class="ar-side-btn">
         <span class="icon">✕</span>
-        <span class="text"></span>
+        <span class="text">Kapat</span>
       </button>
       <button id="toggleModelBtn" class="ar-side-btn">
         <span class="icon">👁️</span>
-        <span class="text"></span>
+        <span class="text">Görünüm</span>
       </button>
       <button id="toggleAudioBtn" class="ar-side-btn">
         <span class="icon">🔊</span>
-        <span class="text"></span>
+        <span class="text">Ses</span>
       </button>
     </div>
 
@@ -273,17 +272,17 @@
 
   <a-scene
     id="arScene"
-    mindar-image="imageTargetSrc: ./targets/targets.mind?v=8; autoStart: false; uiLoading: yes; uiScanning: yes; filterMinCF: 0.001; filterBeta: 0.05; missTolerance: 6;"
+    mindar-image="imageTargetSrc: ./targets/targets.mind?v=8; autoStart: false; uiLoading: yes; uiScanning: yes; filterMinCF: 0.0001; filterBeta: 0.01; missTolerance: 6;"
     color-space="sRGB"
     renderer="colorManagement: true, physicallyCorrectLights: true"
     vr-mode-ui="enabled: false"
     device-orientation-permission-ui="enabled: false">
 
     <a-assets timeout="7000">
-      <a-asset-item id="model-0" src="./models/sayfa0.glb?v=8"></a-asset-item>
-      <a-asset-item id="model-5" src="./models/sayfa5.glb?v=8"></a-asset-item>
-      <a-asset-item id="model-14" src="./models/sayfa14.glb?v=8"></a-asset-item>
-      <a-asset-item id="model-15" src="./models/sayfa15.glb?v=8"></a-asset-item>
+      <a-asset-item id="model-0" src="./models/sayfa0.glb?v=9"></a-asset-item>
+      <a-asset-item id="model-5" src="./models/sayfa5.glb?v=9"></a-asset-item>
+      <a-asset-item id="model-14" src="./models/sayfa14.glb?v=9"></a-asset-item>
+      <a-asset-item id="model-15" src="./models/sayfa15.glb?v=9"></a-asset-item>
     </a-assets>
 
     <a-entity light="type: ambient; color: #BBB; intensity: 1.5"></a-entity>
@@ -292,19 +291,19 @@
     <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
     <a-entity mindar-image-target="targetIndex: 0" id="target-0">
-      <a-gltf-model src="#model-0" position="0 1 0.05" scale="4 4 4" rotation="0 0 180" animation-mixer></a-gltf-model>
+      <a-gltf-model src="#model-0" position="0 0 0.05" scale="4 4 4" rotation="0 0 180" animation-mixer></a-gltf-model>
     </a-entity>
 
     <a-entity mindar-image-target="targetIndex: 1" id="target-1">
-      <a-gltf-model src="#model-5" position="0 1.2 0.05" scale="4 4 4" rotation="0 0 180" animation-mixer></a-gltf-model>
+      <a-gltf-model src="#model-5" position="0 0 0.05" scale="4 4 4" rotation="0 0 180" animation-mixer></a-gltf-model>
     </a-entity>
 
     <a-entity mindar-image-target="targetIndex: 2" id="target-2">
-      <a-gltf-model src="#model-14" position="0 1.2 0.05" scale="0.045 0.045 0.045" rotation="0 0 0" animation-mixer></a-gltf-model>
+      <a-gltf-model src="#model-14" position="0 0 0.05" scale="0.045 0.045 0.045" rotation="0 0 0" animation-mixer></a-gltf-model>
     </a-entity>
 
     <a-entity mindar-image-target="targetIndex: 3" id="target-3">
-      <a-gltf-model src="#model-15" position="0 1.2 0.05" scale="4 4 4" rotation="0 0 180" animation-mixer></a-gltf-model>
+      <a-gltf-model src="#model-15" position="0 0 0.05" scale="4 4 4" rotation="0 0 180" animation-mixer></a-gltf-model>
     </a-entity>
 
   </a-scene>
